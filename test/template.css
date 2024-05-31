@@ -1,0 +1,14 @@
+/* #ifdef aaa | ddd | ccc */
+.aaa {
+}
+/* #end */
+
+/* #ifdef ddd */
+.bbb {
+}
+/* #end */
+
+/* #ifdef bbb */
+.ccc {
+}
+/* #end */
