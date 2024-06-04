@@ -1,59 +1,28 @@
-function contains(str, substring) {
-  return str.indexOf(substring) !== -1;
-}
-
 function trim(str) {
   return str.replace(/^\s+|\s+$/g, "");
 }
 
+var patternList = [
+  /\{\s*\/\* #ifdef\s+([\w|\|\&\(\)\s]+)\s*\*\/\s*\}([\s\S]*?)\{\s*\/\* #endif \*\/\s*\}/g,
+  /\/\* #ifdef\s+([\w|\|\&\(\)\s]+)\s*\*\/([\s\S]*?)\/\* #endif \*\//g,
+  /\/\/ #ifdef\s+([\w|\|\&\(\)\s]+)\s*\n([\s\S]*?)\n\/\/ #endif/g,
+];
+
 function replace(content, options) {
-  var codes = content.split("\n");
-
-  var res = "";
-  var start = "";
-  var string = "";
-
-  for (var index = 0; index < codes.length; index++) {
-    var cur = codes[index];
-    if (
-      contains(cur, "/* #ifdef") ||
-      contains(cur, "// #ifdef") ||
-      contains(cur, "{/* #ifdef")
-    ) {
-      start = trim(cur);
-      continue;
-    }
-
-    if (
-      contains(cur, "/* #end") ||
-      contains(cur, "// #end") ||
-      contains(cur, "{/* #end */}")
-    ) {
-      var keys = [];
-      if (contains(start, "/* #ifdef")) {
-        keys = start.slice(10, -2).split("|");
-      }
-      if (contains(start, "// #ifdef")) {
-        keys = start.slice(10).split("|");
-      }
-      if (contains(start, "{/* #ifdef")) {
-        keys = start.slice(11, -3).split("|");
-      }
+  if (!options.target) {
+    return content;
+  }
+  var res = content;
+  for (let index = 0; index < patternList.length; index++) {
+    res = res.replace(patternList[index], (_, $1, $2) => {
+      const keys = $1.split("||");
       for (let j = 0; j < keys.length; j++) {
-        if (options[trim(keys[j])]) {
-          res += string;
-          break;
+        if (trim(keys[j]) === options.target) {
+          return $2;
         }
       }
-      start = "";
-      string = "";
-      continue;
-    }
-    if (start.length) {
-      string += cur + "\n";
-    } else {
-      res += cur + "\n";
-    }
+      return "";
+    });
   }
   return res;
 }
