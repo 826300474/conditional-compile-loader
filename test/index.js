@@ -9,7 +9,7 @@ fs.readFile("./test/template.css", "utf8", (err, data) => {
   const res = replace(data, {
     aaa: true,
   });
-  console.log(res);
+  // console.log(res);
 });
 
 fs.readFile("./test/template.js", "utf8", (err, data) => {
